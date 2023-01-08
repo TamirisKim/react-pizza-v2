@@ -28,8 +28,8 @@ export const Home = () => {
   );
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const isSearch = React.useRef(false)
-  const isMounted = React.useRef(false)
+  const isSearch = React.useRef(false);
+  const isMounted = React.useRef(false);
 
   const onChangeCategory = (id) => {
     dispatch(setCategoryId(id));
@@ -38,7 +38,7 @@ export const Home = () => {
     dispatch(setCurrentPage(page));
   };
 
-  const fetchPizzas = () => {
+  const fetchPizzas = async () => {
     setIsLoading(true);
 
     const order = sort.sortProperty.includes("-") ? "asc" : "desc";
@@ -46,29 +46,33 @@ export const Home = () => {
     const category = categoryId > 0 ? `category=${categoryId}` : "";
     const search = searchValue > 0 ? `&search=${searchValue}` : "";
 
-    axios
-      .get(
+    try {
+      const res = await axios.get(
         `https://6399e68f16b0fdad774d67dc.mockapi.io/items?page=${currentPage}&limit=4&${category}&sortBy=${sortBy}&order=${order}${search}`
-      )
-      .then((res) => {
-        setItems(res.data);
-        setIsLoading(false);
-      });
-  }
+      );
+      setItems(res.data);
+    } catch (error) {
+      alert('Ошибка при получении пицц')
+      console.log('ERROR', error)
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  
 
   //Нужно ли мне делать запрос на измения пицц
   React.useEffect(() => {
     window.scrollTo(0, 0);
 
-    if(!isSearch.current){
-      fetchPizzas()
+    if (!isSearch.current) {
+      fetchPizzas();
     }
 
-    isSearch.current = false
-
+    isSearch.current = false;
   }, [categoryId, sort.sortProperty, searchValue, currentPage]);
 
-//Если был первый рендер, то проверяем URL пораметры и сохраняем в редаксе
+  //Если был первый рендер, то проверяем URL пораметры и сохраняем в редаксе
   React.useEffect(() => {
     if (window.location.search) {
       const params = qs.parse(window.location.search.substring(1));
@@ -76,15 +80,15 @@ export const Home = () => {
         (obj) => obj.sortProperty === params.sortProperty
       );
 
-      dispatch(setFilters({...params, sort}));
+      dispatch(setFilters({ ...params, sort }));
 
-      isSearch.current = true
+      isSearch.current = true;
     }
   }, []);
 
   //ЕСли был уже ранее рендер то только тогда понимай, нужно ли вшивать параметры в адресную строчку
   React.useEffect(() => {
-    if(isMounted.current){
+    if (isMounted.current) {
       const queryString = qs.stringify({
         sortProperty: sort.sortProperty,
         categoryId,
@@ -92,7 +96,7 @@ export const Home = () => {
       });
       navigate(`?${queryString}`);
     }
-    isMounted.current = true
+    isMounted.current = true;
   }, [categoryId, sort.sortProperty, currentPage]);
 
   const pizzas = items
