@@ -1,6 +1,5 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import axios from "axios";
 import qs from "qs";
 import { useNavigate } from "react-router-dom";
 
@@ -16,16 +15,15 @@ import {
   setCurrentPage,
   setFilters,
 } from "../redux/slices/filterSlice";
+import { fetchPizzas } from "../redux/slices/pizzaSlice";
 
 export const Home = () => {
   const { searchValue } = React.useContext(SearchContext);
 
-  const [items, setItems] = React.useState([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-
   const { categoryId, sort, currentPage } = useSelector(
     (state) => state.filter
   );
+  const { items, status } = useSelector((state) => state.pizza);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isSearch = React.useRef(false);
@@ -38,35 +36,29 @@ export const Home = () => {
     dispatch(setCurrentPage(page));
   };
 
-  const fetchPizzas = async () => {
-    setIsLoading(true);
-
+  const getPizzas = async () => {
     const order = sort.sortProperty.includes("-") ? "asc" : "desc";
     const sortBy = sort.sortProperty.replace("-", "");
     const category = categoryId > 0 ? `category=${categoryId}` : "";
     const search = searchValue > 0 ? `&search=${searchValue}` : "";
 
-    try {
-      const res = await axios.get(
-        `https://6399e68f16b0fdad774d67dc.mockapi.io/items?page=${currentPage}&limit=4&${category}&sortBy=${sortBy}&order=${order}${search}`
-      );
-      setItems(res.data);
-    } catch (error) {
-      alert('Ошибка при получении пицц')
-      console.log('ERROR', error)
-    } finally {
-      setIsLoading(false);
-    }
+    dispatch(
+      fetchPizzas({
+        order,
+        sortBy,
+        category,
+        search,
+        currentPage,
+      })
+    );
   };
-
-  
 
   //Нужно ли мне делать запрос на измения пицц
   React.useEffect(() => {
     window.scrollTo(0, 0);
 
     if (!isSearch.current) {
-      fetchPizzas();
+      getPizzas();
     }
 
     isSearch.current = false;
@@ -120,7 +112,20 @@ export const Home = () => {
         <Sort />
       </div>
       <h2 className="content__title">Все пиццы</h2>
-      <div className="content__items">{isLoading ? skelenos : pizzas}</div>
+      
+      {status === "error" ? (
+        <div className="cart cart--empty">
+          <h2>
+            Произошла ошибка <span>😕</span>
+          </h2>
+          <p>Не получилось получить пиццы. Попробуйте повторить позже</p>
+        </div>
+      ) : (
+        <div className="content__items">
+          {status === "loading" ? skelenos : pizzas}
+        </div>
+      )}
+
       <Pagination currentPage={currentPage} onChangePage={onChangePage} />
     </div>
   );
