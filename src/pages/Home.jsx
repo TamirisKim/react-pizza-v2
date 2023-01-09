@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import qs from "qs";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import Categories from "../components/Categories";
 import Sort, { sortList } from "../components/Sort";
@@ -97,7 +97,7 @@ export const Home = () => {
 
       return false;
     })
-    .map((obj) => <PizzaBlock key={obj.id} {...obj} />);
+    .map((obj) => <Link key={obj.id} to={`/pizza/${obj.id}`}><PizzaBlock {...obj} /></Link>);
 
   const skelenos = [...new Array(6)].map((_, index) => (
     <Skeleton key={index} />
