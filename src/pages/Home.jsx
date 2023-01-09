@@ -8,22 +8,20 @@ import Sort, { sortList } from "../components/Sort";
 import PizzaBlock from "../components/PizzaBlock";
 import Skeleton from "../components/PizzaBlock/Skeleton";
 import { Pagination } from "../components/Pagination";
-import { SearchContext } from "../App";
 
 import {
+  selectFilter,
   setCategoryId,
   setCurrentPage,
   setFilters,
 } from "../redux/slices/filterSlice";
-import { fetchPizzas } from "../redux/slices/pizzaSlice";
+import { fetchPizzas, selectPizzaData } from "../redux/slices/pizzaSlice";
 
 export const Home = () => {
-  const { searchValue } = React.useContext(SearchContext);
 
-  const { categoryId, sort, currentPage } = useSelector(
-    (state) => state.filter
-  );
-  const { items, status } = useSelector((state) => state.pizza);
+  const { categoryId, sort, currentPage, searchValue } = useSelector(selectFilter);
+  const { items, status } = useSelector(selectPizzaData);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isSearch = React.useRef(false);
@@ -112,7 +110,7 @@ export const Home = () => {
         <Sort />
       </div>
       <h2 className="content__title">Все пиццы</h2>
-      
+
       {status === "error" ? (
         <div className="cart cart--empty">
           <h2>
