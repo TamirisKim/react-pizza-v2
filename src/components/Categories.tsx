@@ -1,7 +1,11 @@
 import React from "react";
 
-function Categories({value, onChangeCategory}) {
-    // const [activeIndex, setActiveIndex] = React.useState(0);
+type CategoriesProps = {
+    value: number;
+    onChangeCategory: any;
+}
+
+const Categories: React.FC<CategoriesProps> = ({value, onChangeCategory}) => {
 
     const categories = [
         "Все",
@@ -11,10 +15,6 @@ function Categories({value, onChangeCategory}) {
         "Острые",
         "Закрытые",
       ];
-    
-    // const onClickCategory = (index) => {
-    //   setActiveIndex(index);
-    // };
 
     return (
         <div className="categories">

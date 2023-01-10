@@ -5,8 +5,8 @@ import { Link, useNavigate } from "react-router-dom";
 
 import Categories from "../components/Categories";
 import Sort, { sortList } from "../components/Sort";
-import PizzaBlock from "../components/PizzaBlock";
-import Skeleton from "../components/PizzaBlock/Skeleton";
+import {PizzaBlock} from "../components/PizzaBlock";
+import {Skeleton} from "../components/PizzaBlock/Skeleton";
 import { Pagination } from "../components/Pagination";
 
 import {
@@ -17,7 +17,7 @@ import {
 } from "../redux/slices/filterSlice";
 import { fetchPizzas, selectPizzaData } from "../redux/slices/pizzaSlice";
 
-export const Home = () => {
+export const Home:React.FC = () => {
 
   const { categoryId, sort, currentPage, searchValue } = useSelector(selectFilter);
   const { items, status } = useSelector(selectPizzaData);
@@ -27,10 +27,10 @@ export const Home = () => {
   const isSearch = React.useRef(false);
   const isMounted = React.useRef(false);
 
-  const onChangeCategory = (id) => {
+  const onChangeCategory = (id: number) => {
     dispatch(setCategoryId(id));
   };
-  const onChangePage = (page) => {
+  const onChangePage = (page: number) => {
     dispatch(setCurrentPage(page));
   };
 
@@ -41,6 +41,7 @@ export const Home = () => {
     const search = searchValue > 0 ? `&search=${searchValue}` : "";
 
     dispatch(
+      //@ts-ignore
       fetchPizzas({
         order,
         sortBy,
@@ -90,14 +91,14 @@ export const Home = () => {
   }, [categoryId, sort.sortProperty, currentPage]);
 
   const pizzas = items
-    .filter((obj) => {
+    .filter((obj:any) => {
       if (obj.title.toLowerCase().includes(searchValue.toLowerCase())) {
         return true;
       }
 
       return false;
     })
-    .map((obj) => <Link key={obj.id} to={`/pizza/${obj.id}`}><PizzaBlock {...obj} /></Link>);
+    .map((obj:any) => <Link key={obj.id} to={`/pizza/${obj.id}`}><PizzaBlock {...obj} /></Link>);
 
   const skelenos = [...new Array(6)].map((_, index) => (
     <Skeleton key={index} />
